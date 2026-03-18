@@ -1,2 +1,8 @@
-# shorten-me
-A simple and efficient application designed to transform long URLs into short, easy-to-share links. Built with Java 17, Spring Boot, Redis, this project features user-friendly functionality, tracking metrics, and a sleek interface for managing shortened URLs.
+This URL Shortener App allows users to convert long URLs into short, shareable links effortlessly. Built using Java 17, Spring Boot, Redis, MySQL.
+
+Features
+Shorten any URL in seconds
+Getting Started
+Clone the repository.
+Install the dependencies.
+Run the application locally.

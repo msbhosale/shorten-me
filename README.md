@@ -5,4 +5,4 @@ Shorten any URL in seconds
 Getting Started
 Clone the repository.
 Install the dependencies.
-Run the application locally.
+Run the application locally, will use docker

@@ -1,0 +1,24 @@
+# Ignore build directories
+/target/
+/build/
+target/
+
+# Ignore IDE files
+/.idea/
+/out/
+/*.iml
+/.classpath
+/.project
+
+# Ignore top-level hidden directories such as .vscode, .idea, etc.
+/.*/
+
+# Ignore log files
+*.log
+
+# Ignore package files
+*.jar
+*.war
+
+# Ignore environment files
+.env

@@ -3,7 +3,7 @@ server:
 
 app:
   short-url:
-    base-url: http://localhost:8085/
+    base-url: http://localhost:8085
 
 management:
   endpoints:

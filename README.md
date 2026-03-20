@@ -1,12 +1,14 @@
 # Shorten Me API
 
+Project change history is available in `CHANGELOG.md`.
+
 `shorten-me` is a Spring Boot URL shortener API. It accepts a long URL and a `userId`, generates a 6-character short code, stores the mapping in MySQL, and exposes endpoints to:
 
 - create a short URL
 - fetch short URL details by short code
 - redirect a short code to the original URL
 
-The service also uses Redis caching for URL lookups and exposes Spring Boot Actuator endpoints.
+The service also uses Redis for caching URL lookups and exposes Spring Boot Actuator endpoints for monitoring.
 
 ## Tech Stack
 
@@ -21,7 +23,7 @@ The service also uses Redis caching for URL lookups and exposes Spring Boot Actu
 
 ## Default Configuration
 
-Configured in [`application.yml`]:
+Default values are defined in `src/main/resources/application.yml`:
 
 - App port: `8085`
 - Base URL: `http://localhost:8085/`
@@ -36,7 +38,7 @@ http://localhost:8085/api/v1
 
 ## What This API Does
 
-When a client sends an original URL with a `userId`:
+When a client submits an original URL with a `userId`:
 
 1. The service creates a SHA-256 hash using `originalUrl + userId`.
 2. If the same user already shortened the same URL earlier, the existing record is returned.
@@ -48,8 +50,8 @@ Important behavior:
 - Short code length is `6`
 - Expiry is automatically set to `createdAt + 10 days`
 - Duplicate shortening for the same `originalUrl` and `userId` returns the existing short URL
-- API lookup `/api/v1/urls/{shortCode}` returns JSON
-- Browser-style lookup `/{shortCode}` returns an HTTP redirect
+- API lookup at `/api/v1/urls/{shortCode}` returns JSON
+- Redirect lookup at `/{shortCode}` returns an HTTP redirect
 
 ## Request and Response Models
 
@@ -108,7 +110,7 @@ POST /api/v1/urls
 
 **Description**
 
-Creates a new shortened URL for a given original URL and user. If the same user already shortened the same URL, the existing mapping is returned.
+Creates a shortened URL for a given original URL and user. If the same user has already shortened the same URL, the existing mapping is returned.
 
 **Request Body**
 
@@ -240,7 +242,7 @@ curl -i http://localhost:8085/x7Qa2B
 
 ## Actuator and Monitoring
 
-Because Actuator exposure is enabled with `include: "*"`, management endpoints are available locally, including:
+Because Actuator exposure is enabled with `include: "*"`, management endpoints are available, including:
 
 - `/actuator/health`
 - `/actuator/prometheus`
@@ -255,15 +257,15 @@ curl http://localhost:8085/actuator/health
 
 ### Prerequisites
 
-- Java 17
-- Maven
+- Java 17+
+- Maven 3.9+
 - MySQL running on `localhost:3306`
 - Redis running on `localhost:6379`
 
 ### Steps
 
 1. Create a MySQL database named `url_shortener`.
-2. Update database credentials in [`src/main/resources/application.yml`](/Users/msbhosale/Documents/MS Bhosale/Gitlab-Repos/shorten-me/src/main/resources/application.yml) if needed.
+2. Review and update values in `src/main/resources/application.yml` if your local MySQL or Redis setup is different.
 3. Start MySQL and Redis.
 4. Run the application:
 
@@ -271,7 +273,7 @@ curl http://localhost:8085/actuator/health
 ./mvnw spring-boot:run
 ```
 
-The application starts on:
+The application starts at:
 
 ```text
 http://localhost:8085
@@ -279,7 +281,7 @@ http://localhost:8085
 
 ## Notes and Limitations
 
-- There is currently no request validation annotation on the input DTO, so invalid or blank URLs are not explicitly rejected by validation rules.
+- There is currently no request validation on the input DTO, so invalid or blank URLs are not explicitly rejected.
 - Redirect lookup does not currently check `expiryAt` or `isActive`; it redirects whenever the short code exists.
 - The redirect endpoint returns an empty `404` body, while the JSON lookup endpoint returns a structured error body.
-- There is no generated Swagger/OpenAPI UI in the project right now; this README acts as the API reference based on the current implementation.
+- Swagger/OpenAPI is not currently configured; this README serves as the API reference for the current implementation.

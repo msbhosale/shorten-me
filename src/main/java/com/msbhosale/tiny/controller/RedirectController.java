@@ -21,14 +21,11 @@ public class RedirectController {
     @GetMapping("/{shortCode}")
     public ResponseEntity<Void> redirect(@PathVariable String shortCode) {
 
-        Optional<ShortUrl> shortUrlOptional = shortUrlService.getRedirectUrl(shortCode);
+        ShortUrl shortUrl = shortUrlService.getRedirectUrl(shortCode);
 
-        return shortUrlOptional.<ResponseEntity<Void>>map(shortUrl -> ResponseEntity
-                        .status(HttpStatus.TEMPORARY_REDIRECT)
-                        .location(URI.create(shortUrl.getOriginalUrl()))
-                        .build())
-                .orElseGet(() -> ResponseEntity
-                        .status(HttpStatus.NOT_FOUND)
-                        .build());
+        return ResponseEntity
+                .status(HttpStatus.TEMPORARY_REDIRECT)
+                .location(URI.create(shortUrl.getOriginalUrl()))
+                .build();
     }
 }

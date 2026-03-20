@@ -4,6 +4,7 @@ import com.msbhosale.tiny.config.AppProperties;
 import com.msbhosale.tiny.dto.ShortUrlRequest;
 import com.msbhosale.tiny.dto.ShortUrlResponse;
 import com.msbhosale.tiny.entity.ShortUrl;
+import com.msbhosale.tiny.exception.UrlExpiredException;
 import com.msbhosale.tiny.exception.UrlNotFoundException;
 import com.msbhosale.tiny.repository.ShortUrlRepository;
 import lombok.RequiredArgsConstructor;
@@ -14,6 +15,8 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 
 import java.security.SecureRandom;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 @Slf4j
@@ -54,21 +57,41 @@ public class ShortUrlService {
 
         log.info("Getting data from DB for the shortCode {}", shortCode);
 
-        Optional<ShortUrl> shortUrlOptional = shortUrlRepository.findByShortCode(shortCode);
-
-        if (shortUrlOptional.isPresent()) {
-
-            ShortUrl shortUrl = shortUrlOptional.get();
-
-            return mapToResponse(shortUrl);
+        if (shortCode.isBlank()) {
+            throw new IllegalArgumentException("Short code must not be null or blank");
         }
 
-        throw new UrlNotFoundException("Url with the code " + shortCode + " not found");
+        ShortUrl shortUrl = shortUrlRepository.findByShortCode(shortCode)
+                .orElseThrow(() -> new UrlNotFoundException(String.format("Short url not found for the code %s", shortCode)));
 
+        if (shortUrl.isExpired()) {
+            log.info("{} is expired", shortUrl.getShortCode());
+            throw new UrlExpiredException("ShortUrl has expired");
+        }
+
+        return mapToResponse(shortUrl);
     }
 
-    public Optional<ShortUrl> getRedirectUrl(String shortCode) {
-        return shortUrlRepository.findByShortCode(shortCode);
+    public ShortUrl getRedirectUrl(String shortCode) {
+
+        ShortUrl shortUrl = shortUrlRepository.findByShortCode(shortCode)
+                .orElseThrow(() -> new UrlNotFoundException(String.format("Short url not found for the code %s", shortCode)));
+
+        if (shortUrl.isExpired()) {
+            log.info("This url with code {} is expired", shortUrl.getShortCode());
+            throw new UrlExpiredException("ShortUrl has expired");
+        }
+
+        return shortUrl;
+    }
+
+    public List<ShortUrlResponse> getShortUrlsForUser(Long userId) {
+
+        List<ShortUrl> shortUrls = shortUrlRepository.findByUserId(userId);
+
+        return shortUrls.stream()
+                .map(this::mapToResponse)
+                .toList();
     }
 
     private String getHash(String originalUrl, Long userId) {
@@ -96,7 +119,7 @@ public class ShortUrlService {
         return ShortUrlResponse.builder()
                 .shortCode(shortUrl.getShortCode())
                 .originalUrl(shortUrl.getOriginalUrl())
-                .shortenedUrl(appProperties.getBaseUrl() + shortUrl.getShortCode())
+                .shortenedUrl(appProperties.getBaseUrl() + "/" + shortUrl.getShortCode())
                 .createdAt(shortUrl.getCreatedAt())
                 .expiryAt(shortUrl.getExpiryAt())
                 .build();
@@ -112,6 +135,4 @@ public class ShortUrlService {
 
         return sb.toString();
     }
-
-
 }

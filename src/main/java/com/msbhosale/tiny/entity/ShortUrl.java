@@ -1,6 +1,5 @@
 package com.msbhosale.tiny.entity;
 
-
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -38,12 +37,19 @@ public class ShortUrl {
     private String urlHash;
 
     @Column(name = "is_active", nullable = false)
-    private Boolean isActive = true;
+    private Boolean isActive;
 
     @PrePersist
     public void prePersist() {
         this.createdAt = LocalDateTime.now();
         this.isActive = true;
-        this.expiryAt = this.createdAt.plusDays(10);
+        this.expiryAt = this.createdAt.plusDays(365);
+    }
+
+    public boolean isExpired() {
+        if (expiryAt == null) {
+            return false;
+        }
+        return !expiryAt.isAfter(LocalDateTime.now());
     }
 }

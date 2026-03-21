@@ -41,7 +41,7 @@ class ShortUrlServiceTest {
 
         Mockito.when(shortUrlRepository.findByShortCode("abc123"))
                 .thenReturn(Optional.of(shortUrl));
-        Mockito.when(appProperties.getBaseUrl())
+        Mockito.when(appProperties.getHost())
                 .thenReturn("http://localhost:8085");
 
         ShortUrlResponse response = shortUrlService.getShortUrlResponse("abc123");
@@ -64,7 +64,7 @@ class ShortUrlServiceTest {
                 () -> shortUrlService.getShortUrlResponse("abc123")
         );
 
-        assertEquals("Url with the code abc123 not found", exception.getMessage());
+        assertEquals("Short url not found for the code abc123", exception.getMessage());
 
         Mockito.verify(shortUrlRepository).findByShortCode("abc123");
     }

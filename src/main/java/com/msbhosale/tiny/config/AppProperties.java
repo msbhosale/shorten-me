@@ -10,5 +10,6 @@ import org.springframework.context.annotation.Configuration;
 @Getter
 @Setter
 public class AppProperties {
-    private String baseUrl;
+    private String host;
+    private String basePath;
 }

@@ -1,5 +1,6 @@
 package com.msbhosale.tiny.controller;
 
+import com.msbhosale.tiny.dto.ShortUrlResponse;
 import com.msbhosale.tiny.entity.ShortUrl;
 import com.msbhosale.tiny.service.ShortUrlService;
 import lombok.RequiredArgsConstructor;
@@ -21,7 +22,7 @@ public class RedirectController {
     @GetMapping("/{shortCode}")
     public ResponseEntity<Void> redirect(@PathVariable String shortCode) {
 
-        ShortUrl shortUrl = shortUrlService.getRedirectUrl(shortCode);
+        ShortUrlResponse shortUrl = shortUrlService.getRedirectUrl(shortCode);
 
         return ResponseEntity
                 .status(HttpStatus.TEMPORARY_REDIRECT)
